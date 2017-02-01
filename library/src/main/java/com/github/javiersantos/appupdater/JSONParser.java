@@ -33,21 +33,28 @@ public class JSONParser {
 
     }
 
-    public Update parse(){
+    public Update parse() {
 
         try {
             JSONObject json = readJsonFromUrl();
             Update update = new Update();
-            update.setLatestVersion(json.getString(KEY_LATEST_VERSION).trim());
+            final String strLatestVersion = json.getString(KEY_LATEST_VERSION);
+            if (strLatestVersion != null) {
+                update.setLatestVersion(strLatestVersion.trim());
+            }
             JSONArray releaseArr = json.optJSONArray(KEY_RELEASE_NOTES);
             StringBuilder builder = new StringBuilder();
-            for(int i = 0; i < releaseArr.length(); ++i) {
-                builder.append(releaseArr.getString(i).trim());
-                builder.append(System.getProperty("line.separator"));
+            if (releaseArr != null) {
+                for (int i = 0; i < releaseArr.length(); ++i) {
+                    builder.append(releaseArr.getString(i).trim());
+                    builder.append(System.getProperty("line.separator"));
+                }
             }
             update.setReleaseNotes(builder.toString());
-            URL url = new URL(json.getString(KEY_URL).trim());
-            update.setUrlToDownload(url);
+            final String strUrl = json.getString(KEY_URL);
+            if (strUrl != null) {
+                update.setUrlToDownload(new URL(strUrl.trim()));
+            }
             return update;
         } catch (IOException e) {
             throw new RuntimeException(e);
